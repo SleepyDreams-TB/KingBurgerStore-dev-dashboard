@@ -1,44 +1,14 @@
 import { useAuth } from "../context/AuthContext"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/Sidebar"
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  async function handleLogout() {
-    await logout()
-    navigate("/login")
-  }
-
   return (
     <div style={styles.page}>
-      {/* Sidebar */}
-      <div style={styles.sidebar}>
-        <div>
-          <h2 style={styles.logo}>KingBurger</h2>
-          <p style={styles.role}>Dev Dashboard</p>
-
-          <nav style={styles.nav}>
-            <button style={styles.navItem} onClick={() => navigate("/dashboard")}>
-              Overview
-            </button>
-            <button style={styles.navItem} onClick={() => navigate("/products")}>
-              Products
-            </button>
-            <button style={styles.navItem} onClick={() => navigate("/orders")}>
-              Orders
-            </button>
-          </nav>
-        </div>
-
-        {/* User info + logout at bottom of sidebar */}
-        <div>
-          <p style={styles.userName}>👤 {user.firstName}</p>
-          <button style={styles.logout} onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </div>
+      <Sidebar activePage="/dashboard" />
 
       {/* Main content */}
       <div style={styles.main}>
