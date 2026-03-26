@@ -78,6 +78,17 @@ export const products = {
   delete: (id) => request(`/products/${id}`, { method: "DELETE" }),
 }
 
+// ==================== SERVICES ====================
+
+export const flags = {
+  getAll: () => request("/flags"),
+  toggle: (serviceId, enabled) =>
+    request(`/flags/${serviceId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ enabled, dev_key: DEV_KEY }),
+    }),
+}
+
 // ==================== ORDERS ====================
 export const orders = {
   getAll: (params = {}) => {

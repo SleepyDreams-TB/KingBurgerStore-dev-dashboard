@@ -4,6 +4,8 @@ import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Products from "./pages/Products"
 import Orders from "./pages/Orders"
+import Services from "./pages/Services"
+
 // This component decides whether to show a page or redirect to login
 // If you're not logged in and try to visit /dashboard, it sends you to /login
 function ProtectedRoute({ children }) {
@@ -35,7 +37,12 @@ function App() {
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-            } />
+          } />
+          <Route path="/services" element={
+            <ProtectedRoute>
+              <Services />
+            </ProtectedRoute>
+          } />
           <Route path="/products" element={
             <ProtectedRoute>
               <Products />

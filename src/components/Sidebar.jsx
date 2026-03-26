@@ -14,6 +14,7 @@ export default function Sidebar({ activePage }) {
     { label: "Overview", path: "/dashboard" },
     { label: "Products", path: "/products" },
     { label: "Orders", path: "/orders" },
+    { label: "Services", path: "/services" },
   ]
 
   return (
