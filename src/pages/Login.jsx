@@ -13,7 +13,6 @@ export default function Login() {
 
   const [userName, setUserName] = useState("")
   const [password, setPassword] = useState("")
-  const [userId, setUserId] = useState(null)
   const [qrCode, setQrCode] = useState(null)   // base64 QR image from API
   const [totpCode, setTotpCode] = useState("")
   const [error, setError] = useState(null)
@@ -27,9 +26,6 @@ export default function Login() {
 
     try {
       const data = await auth.loginStep(userName, password)
-
-      // Save the user_id — we need it for the next step
-      setUserId(data.user_id)
 
       if (!data.registered) {
         // First time — show QR code to scan with authenticator app
@@ -61,7 +57,7 @@ export default function Login() {
 
     try {
       const data = await auth.devLogin(userName, password, totpCode)
-      
+
       sessionStorage.setItem("token", data.token)
 
       // Store the user in context so the whole app knows who's logged in

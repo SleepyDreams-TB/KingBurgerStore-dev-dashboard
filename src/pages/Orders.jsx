@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState, useEffect, useCallback } from "react"
 import { orders as ordersApi } from "../services/api"
+import Sidebar from "../components/Sidebar"
 
 export default function Orders() {
-  const navigate = useNavigate()
   const [orderList, setOrderList] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Filters — these match the query params your API accepts
   const [filters, setFilters] = useState({
     status: "",
     payment_type: "",
@@ -24,17 +22,12 @@ export default function Orders() {
     page: 1,
   })
 
-  useEffect(() => {
-    fetchOrders()
-  }, [filters.page]) // refetch when page changes
-
-  async function fetchOrders() {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true)
 
-      // Remove empty filters before sending — no point sending ?status=
       const cleanFilters = Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v !== "")
+        Object.entries(filters).filter(([, v]) => v !== "")
       )
 
       const data = await ordersApi.getAll(cleanFilters)
@@ -49,7 +42,11 @@ export default function Orders() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
+
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
   function handleFilterChange(e) {
     const { name, value } = e.target
@@ -58,16 +55,13 @@ export default function Orders() {
 
   function handleSearch(e) {
     e.preventDefault()
-    // Reset to page 1 when searching
     setFilters(prev => ({ ...prev, page: 1 }))
-    fetchOrders()
   }
 
   function handlePageChange(newPage) {
     setFilters(prev => ({ ...prev, page: newPage }))
   }
 
-  // Format the ISO date string from your API into something readable
   function formatDate(isoString) {
     return new Date(isoString).toLocaleDateString("en-ZA", {
       day: "numeric",
@@ -92,10 +86,8 @@ export default function Orders() {
 
   return (
     <div style={styles.page}>
-      {/* Sidebar */}
-      <Sidebar activePage="/dashboard" />
+      <Sidebar activePage="/orders" />
 
-      {/* Main content */}
       <div style={styles.main}>
         <div style={styles.header}>
           <div>
@@ -104,7 +96,6 @@ export default function Orders() {
           </div>
         </div>
 
-        {/* Filters */}
         <form onSubmit={handleSearch} style={styles.filters}>
           <select style={styles.filterInput} name="status" value={filters.status} onChange={handleFilterChange}>
             <option value="">All statuses</option>
@@ -142,16 +133,12 @@ export default function Orders() {
           <button
             style={styles.clearBtn}
             type="button"
-            onClick={() => {
-              setFilters({ status: "", payment_type: "", date_from: "", date_to: "", page: 1, page_size: 10 })
-              setTimeout(fetchOrders, 0)
-            }}
+            onClick={() => setFilters({ status: "", payment_type: "", date_from: "", date_to: "", page: 1, page_size: 10 })}
           >
             Clear
           </button>
         </form>
 
-        {/* Orders table */}
         <div style={styles.table}>
           <div style={{ ...styles.row, ...styles.tableHeader }}>
             <span>Reference</span>
@@ -179,7 +166,6 @@ export default function Orders() {
                 {formatDate(order.created_at)}
               </span>
               <span style={{ color: "#fff" }}>
-                {/* Show each item name and quantity */}
                 {order.items.map((item, i) => (
                   <div key={i} style={{ fontSize: "0.85rem" }}>
                     {item.name} x{item.quantity}
@@ -204,7 +190,6 @@ export default function Orders() {
           ))}
         </div>
 
-        {/* Pagination */}
         {pagination.total_pages > 1 && (
           <div style={styles.pagination}>
             <button
@@ -235,11 +220,6 @@ export default function Orders() {
 
 const styles = {
   page: { display: "flex", minHeight: "100vh", backgroundColor: "#0f0f0f", color: "#fff" },
-  sidebar: { width: "220px", backgroundColor: "#1a1a1a", padding: "2rem 1.5rem", borderRight: "1px solid #2a2a2a" },
-  logo: { color: "#f5a623", margin: 0, fontSize: "1.4rem" },
-  role: { color: "#555", fontSize: "0.8rem", marginTop: "0.25rem", marginBottom: "2rem" },
-  nav: { display: "flex", flexDirection: "column", gap: "0.5rem" },
-  navItem: { backgroundColor: "transparent", border: "none", color: "#aaa", textAlign: "left", padding: "0.6rem 0.75rem", borderRadius: "8px", cursor: "pointer", fontSize: "0.95rem" },
   main: { flex: 1, padding: "2.5rem" },
   header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" },
   heading: { margin: 0, fontSize: "1.8rem" },

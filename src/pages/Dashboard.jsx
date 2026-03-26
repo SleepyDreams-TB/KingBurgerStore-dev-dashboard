@@ -1,10 +1,8 @@
 import { useAuth } from "../context/AuthContext"
-import { useNavigate } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
 
 export default function Dashboard() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
 
   return (
     <div style={styles.page}>

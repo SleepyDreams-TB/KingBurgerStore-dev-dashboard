@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+//import { useNavigate } from "react-router-dom"
 import { products as productsApi } from "../services/api"
+import Sidebar from "../components/Sidebar"
 
 export default function Products() {
-  const navigate = useNavigate()
   const [productList, setProductList] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -102,7 +102,7 @@ export default function Products() {
   return (
     <div style={styles.page}>
       {/* Sidebar */}
-      <Sidebar activePage="/dashboard" />
+      <Sidebar activePage="/products" />
 
       {/* Main content */}
       <div style={styles.main}>
