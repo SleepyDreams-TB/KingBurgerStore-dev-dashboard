@@ -1,31 +1,42 @@
+import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import Sidebar from "../components/Sidebar"
+import { dashboard } from "../services/api"
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    dashboard.getStats()
+      .then(data => setStats(data))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const fmt = (val) => loading ? "--" : val
 
   return (
     <div style={styles.page}>
       <Sidebar activePage="/dashboard" />
-
-      {/* Main content */}
       <div style={styles.main}>
         <h1 style={styles.heading}>Overview</h1>
         <p style={styles.sub}>Welcome back, {user.firstName}. Here's what's going on.</p>
 
-        {/* Stat cards — hardcoded for now, we'll wire up real data later */}
         <div style={styles.cards}>
           <div style={styles.card}>
             <p style={styles.cardLabel}>Total Orders</p>
-            <p style={styles.cardValue}>--</p>
+            <p style={styles.cardValue}>{fmt(stats?.total_orders)}</p>
           </div>
           <div style={styles.card}>
             <p style={styles.cardLabel}>Total Products</p>
-            <p style={styles.cardValue}>--</p>
+            <p style={styles.cardValue}>{fmt(stats?.total_products)}</p>
           </div>
           <div style={styles.card}>
             <p style={styles.cardLabel}>Revenue</p>
-            <p style={styles.cardValue}>--</p>
+            <p style={styles.cardValue}>
+              {loading ? "--" : `R ${stats?.total_revenue.toLocaleString("en-ZA")}`}
+            </p>
           </div>
         </div>
       </div>

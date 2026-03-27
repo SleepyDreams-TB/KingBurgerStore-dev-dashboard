@@ -12,6 +12,7 @@ export default function Orders() {
     payment_type: "",
     date_from: "",
     date_to: "",
+    merchant_reference: "",
     page: 1,
     page_size: 10,
   })
@@ -76,6 +77,7 @@ export default function Orders() {
     const colors = {
       pending: "#f5a623",
       completed: "#2ecc71",
+      complete: "#2ecc71",
       cancelled: "#e74c3c",
       processing: "#3498db",
     }
@@ -101,15 +103,16 @@ export default function Orders() {
             <option value="">All statuses</option>
             <option value="pending">Pending</option>
             <option value="processing">Processing</option>
-            <option value="completed">Completed</option>
+            <option value="complete">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
 
           <select style={styles.filterInput} name="payment_type" value={filters.payment_type} onChange={handleFilterChange}>
             <option value="">All payment types</option>
-            <option value="card">Card</option>
-            <option value="cash">Cash</option>
+            <option value="credit_card">Credit-Card</option>
+            <option value="saved_card">Credit-Card-Token</option>
             <option value="eft">EFT</option>
+            <option value="paypal">Paypal</option>
           </select>
 
           <input
@@ -126,6 +129,14 @@ export default function Orders() {
             value={filters.date_to}
             onChange={handleFilterChange}
           />
+          <input
+            style={styles.filterInput}
+            type="text"
+            name="merchant_reference"
+            value={filters.merchant_reference}
+            onChange={handleFilterChange}
+            placeholder="Search reference..."
+          />
 
           <button style={styles.searchBtn} type="submit">
             Search
@@ -133,7 +144,7 @@ export default function Orders() {
           <button
             style={styles.clearBtn}
             type="button"
-            onClick={() => setFilters({ status: "", payment_type: "", date_from: "", date_to: "", page: 1, page_size: 10 })}
+            onClick={() => setFilters({ status: "", payment_type: "", date_from: "", date_to: "", merchant_reference: "", page: 1, page_size: 10 })}
           >
             Clear
           </button>

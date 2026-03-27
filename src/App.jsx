@@ -15,7 +15,7 @@ function ProtectedRoute({ children }) {
 
   // Only allow developers into the dashboard
   if (user.role !== "developer" && user.role !== "admin") {
-    return <div>Access denied. Developer account required.</div>
+    return <Navigate to="/login" replace />
   }
 
   return children

@@ -62,6 +62,11 @@ export const auth = {
   logout: () => request("/auth/logout", { method: "POST" }),
 }
 
+// ==================== DASHBOARD ====================
+export const dashboard = {
+  getStats: () => request("/api/dashboard/stats")
+}
+
 // ==================== PRODUCTS ====================
 export const products = {
   getAll: (category) =>
