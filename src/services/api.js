@@ -102,4 +102,14 @@ export const orders = {
     const query = new URLSearchParams(params).toString()
     return request(`/api/orders/me${query ? `?${query}` : ""}`)
   },
-} 
+}
+
+// ==================== WEBHOOKS ====================
+export const webhooks = {
+  getAll: (limit = 100) =>
+    request(`/webhooks/received?limit=${limit}`),
+
+  getOne: (id) =>
+    request(`/webhooks/${id}`),
+}
+

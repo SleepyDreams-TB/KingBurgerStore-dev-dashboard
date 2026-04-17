@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard"
 import Products from "./pages/Products"
 import Orders from "./pages/Orders"
 import Services from "./pages/Services"
+import WebhookLogs from "./pages/Webhooks"
 
 // This component decides whether to show a page or redirect to login
 // If you're not logged in and try to visit /dashboard, it sends you to /login
@@ -32,7 +33,6 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* Protected routes — only developers can see these */}
-          {/* We'll add more pages here as we build them */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
@@ -51,6 +51,11 @@ function App() {
           <Route path="/orders" element={
             <ProtectedRoute>
               <Orders />
+            </ProtectedRoute>
+          } />
+          <Route path="/webhooklogs" element={
+            <ProtectedRoute>
+              <WebhookLogs />
             </ProtectedRoute>
           } />
           {/* If someone visits / redirect them to /dashboard */}

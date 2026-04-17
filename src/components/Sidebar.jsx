@@ -15,6 +15,7 @@ export default function Sidebar({ activePage }) {
     { label: "Products", path: "/products" },
     { label: "Orders", path: "/orders" },
     { label: "Services", path: "/services" },
+    { label: "Webhook Logs", path: "/webhooklogs" },
   ]
 
   return (
