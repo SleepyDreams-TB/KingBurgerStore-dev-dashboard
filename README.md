@@ -1,3 +1,21 @@
+## Docker Setup Guide
+## IF Provided with Docker Hub Image
+docker pull sleepydreams/burger-dev-dashboard
+docker run -d -p 3000:80 sleepydreams/burger-dev-dashboard
+
+## IF provided with Git Repo
+### Build image
+docker build -t burger-dev-dashboard .
+
+### Run container
+docker run -d -p 3000:80 burger-dev-dashboard
+
+### Open in browser
+http://localhost:3000
+
+## Or Use yml.
+docker compose up
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
