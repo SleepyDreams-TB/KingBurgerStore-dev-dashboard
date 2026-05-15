@@ -735,14 +735,17 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; colo
   display: grid;
   grid-template-columns: minmax(280px, 380px) 1fr;
   gap: var(--sp-4);
-  height: calc(100vh - var(--topbar-h) - var(--sp-8) * 2 - 60px);
-  min-height: 480px;
+  min-height: calc(100vh - var(--topbar-h) - var(--sp-8) * 2 - 60px);
+  align-items: start;
 }
 .split-list {
   background: var(--bg-elev-1);
   border: 1px solid var(--border-soft);
   border-radius: var(--r-lg);
   overflow-y: auto;
+  position: sticky;
+  top: calc(var(--topbar-h) + var(--sp-8));
+  max-height: calc(100vh - var(--topbar-h) - var(--sp-8) * 2);
 }
 .split-detail {
   background: var(--bg-elev-1);
@@ -750,7 +753,6 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; colo
   border-radius: var(--r-lg);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .log-item {
@@ -785,7 +787,7 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; colo
 }
 .detail-title { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-2); }
 .detail-url { font-size: var(--fs-sm); font-weight: 500; word-break: break-all; }
-.detail-body { padding: var(--sp-5); overflow-y: auto; display: flex; flex-direction: column; gap: var(--sp-3); }
+.detail-body { padding: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-3); }
 .detail-empty {
   flex: 1;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -815,15 +817,18 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; colo
 .section-actions { display: flex; align-items: center; gap: var(--sp-2); color: var(--text-soft); }
 .section-chevron { transition: transform var(--t-fast); }
 .section-chevron.is-open { transform: rotate(90deg); }
-.section-content { padding: var(--sp-3); border-top: 1px solid var(--border-soft); }
+.section-content {
+  padding: var(--sp-3);
+  border-top: 1px solid var(--border-soft);
+  overflow-x: auto;
+}
 
 .code-block {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   line-height: 1.6;
   margin: 0;
-  white-space: pre-wrap;
-  word-break: break-all;
+  white-space: pre;
   color: var(--text);
 }
 
