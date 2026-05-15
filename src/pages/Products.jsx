@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react"
 import { products as productsApi } from "../services/api"
-import Sidebar from "../components/Sidebar"
+import DashboardLayout from "../components/DashboardLayout"
+
+const CATEGORY_NAMES = { 1: "Services", 2: "Supplies", 3: "Packages" }
+const EMPTY_FORM = {
+  name: "", description: "", price: "", category: "",
+  brand: "", sku: "", stock_quantity: "", image_url: "",
+}
 
 export default function Products() {
   const [productList, setProductList] = useState([])
@@ -9,23 +15,11 @@ export default function Products() {
   const [showForm, setShowForm] = useState(false)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState(null)
+  const [form, setForm] = useState(EMPTY_FORM)
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    category: "",
-    brand: "",
-    sku: "",
-    stock_quantity: "",
-    image_url: "",
-  })
-
-  // ── Fetch products only once on mount ──
   useEffect(() => {
-    async function fetchProducts() {
+    (async () => {
       try {
-        setLoading(true)
         const data = await productsApi.getAll()
         setProductList(data.products)
       } catch (err) {
@@ -33,8 +27,7 @@ export default function Products() {
       } finally {
         setLoading(false)
       }
-    }
-    fetchProducts()
+    })()
   }, [])
 
   function handleFormChange(e) {
@@ -53,17 +46,10 @@ export default function Products() {
         category: parseInt(form.category),
         stock_quantity: parseInt(form.stock_quantity),
       })
-
-      setForm({
-        name: "", description: "", price: "", category: "",
-        brand: "", sku: "", stock_quantity: "", image_url: "",
-      })
+      setForm(EMPTY_FORM)
       setShowForm(false)
-
-      // Only update the list, sidebar stays untouched
       const data = await productsApi.getAll()
       setProductList(data.products)
-
     } catch (err) {
       setFormError(err.message)
     } finally {
@@ -81,130 +67,118 @@ export default function Products() {
     }
   }
 
-  const categoryNames = { 1: "Services", 2: "Supplies", 3: "Packages" }
-
   return (
-    <div style={styles.page}>
-      {/* Sidebar stays persistent */}
-      <Sidebar activePage="/products" />
-
-      {/* Main content updates without affecting sidebar */}
-      <div style={styles.main}>
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.heading}>Products</h1>
-            <p style={styles.sub}>{productList.length} products in database</p>
-          </div>
-          <button style={styles.addButton} onClick={() => setShowForm(!showForm)}>
-            {showForm ? "Cancel" : "+ Add Product"}
-          </button>
+    <DashboardLayout activePage="/products" title="Products">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Products</h1>
+          <p className="page-subtitle">{productList.length} products in database</p>
         </div>
-
-        {loading && <p style={styles.center}>Loading products...</p>}
-        {error && <p style={styles.center}>Error: {error}</p>}
-
-        {!loading && !error && (
-          <>
-            {showForm && (
-              <form onSubmit={handleCreate} style={styles.form}>
-                <h3 style={{ color: "#fff", marginBottom: "1rem" }}>New Product</h3>
-                <div style={styles.formGrid}>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Name *</label>
-                    <input style={styles.input} name="name" value={form.name} onChange={handleFormChange} required />
-                  </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Brand</label>
-                    <input style={styles.input} name="brand" value={form.brand} onChange={handleFormChange} />
-                  </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>SKU</label>
-                    <input style={styles.input} name="sku" value={form.sku} onChange={handleFormChange} />
-                  </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Price (R) *</label>
-                    <input style={styles.input} name="price" type="number" value={form.price} onChange={handleFormChange} required />
-                  </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Stock Quantity</label>
-                    <input style={styles.input} name="stock_quantity" type="number" value={form.stock_quantity} onChange={handleFormChange} />
-                  </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Category *</label>
-                    <select style={styles.input} name="category" value={form.category} onChange={handleFormChange} required>
-                      <option value="">Select category</option>
-                      <option value="1">1 - Services</option>
-                      <option value="2">2 - Supplies</option>
-                      <option value="3">3 - Packages</option>
-                    </select>
-                  </div>
-                  <div style={{ ...styles.formGroup, gridColumn: "span 2" }}>
-                    <label style={styles.label}>Image URL</label>
-                    <input style={styles.input} name="image_url" value={form.image_url} onChange={handleFormChange} />
-                  </div>
-                  <div style={{ ...styles.formGroup, gridColumn: "span 2" }}>
-                    <label style={styles.label}>Description *</label>
-                    <textarea style={{ ...styles.input, height: "80px", resize: "vertical" }} name="description" value={form.description} onChange={handleFormChange} required />
-                  </div>
-                </div>
-                {formError && <p style={styles.error}>{formError}</p>}
-                <button style={styles.addButton} type="submit" disabled={formLoading}>
-                  {formLoading ? "Creating..." : "Create Product"}
-                </button>
-              </form>
-            )}
-
-            <div style={styles.table}>
-              <div style={{ ...styles.row, ...styles.tableHeader }}>
-                <span>Name</span>
-                <span>Category</span>
-                <span>Price</span>
-                <span>Stock</span>
-                <span>Actions</span>
-              </div>
-
-              {productList.length === 0 && <p style={{ color: "#666", padding: "1rem" }}>No products found.</p>}
-
-              {productList.map(product => (
-                <div key={product.id} style={styles.row}>
-                  <span style={{ color: "#fff" }}>{product.name}</span>
-                  <span style={{ color: "#aaa" }}>{categoryNames[product.category] || product.category}</span>
-                  <span style={{ color: "#f5a623" }}>R {product.price}</span>
-                  <span style={{ color: "#aaa" }}>{product.stock_quantity ?? "--"}</span>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button
-                      style={styles.deleteBtn}
-                      onClick={() => handleDelete(product.id, product.name)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+        <button className="btn btn-primary" onClick={() => setShowForm(s => !s)}>
+          {showForm ? "Cancel" : "+ Add Product"}
+        </button>
       </div>
-    </div>
-  )
-}
 
-const styles = {
-  page: { display: "flex", minHeight: "100vh", backgroundColor: "#0f0f0f", color: "#fff" },
-  main: { flex: 1, padding: "2.5rem" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2rem" },
-  heading: { margin: 0, fontSize: "1.8rem" },
-  sub: { color: "#666", marginTop: "0.25rem" },
-  addButton: { padding: "0.6rem 1.2rem", backgroundColor: "#f5a623", border: "none", borderRadius: "8px", color: "#000", fontWeight: "bold", cursor: "pointer" },
-  form: { backgroundColor: "#1a1a1a", padding: "1.5rem", borderRadius: "12px", marginBottom: "2rem", border: "1px solid #2a2a2a" },
-  formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" },
-  formGroup: { display: "flex", flexDirection: "column", gap: "0.4rem" },
-  label: { color: "#aaa", fontSize: "0.85rem" },
-  input: { padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #333", backgroundColor: "#0f0f0f", color: "#fff", fontSize: "0.95rem" },
-  table: { backgroundColor: "#1a1a1a", borderRadius: "12px", border: "1px solid #2a2a2a", overflow: "hidden" },
-  tableHeader: { backgroundColor: "#222", color: "#666", fontSize: "0.85rem" },
-  row: { display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr", padding: "0.9rem 1.25rem", borderBottom: "1px solid #2a2a2a", alignItems: "center" },
-  deleteBtn: { padding: "0.35rem 0.75rem", backgroundColor: "transparent", border: "1px solid #e74c3c", color: "#e74c3c", borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem" },
-  error: { color: "#e74c3c", fontSize: "0.9rem", margin: "0 0 1rem 0" },
-  center: { display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", color: "#aaa", backgroundColor: "#0f0f0f" },
+      {showForm && (
+        <div className="card mb-6">
+          <div className="card-header">
+            <h2 className="card-title">New Product</h2>
+          </div>
+          <form onSubmit={handleCreate} className="form">
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="label">Name *</label>
+                <input className="input" name="name" value={form.name} onChange={handleFormChange} required />
+              </div>
+              <div className="form-group">
+                <label className="label">Brand</label>
+                <input className="input" name="brand" value={form.brand} onChange={handleFormChange} />
+              </div>
+              <div className="form-group">
+                <label className="label">SKU</label>
+                <input className="input" name="sku" value={form.sku} onChange={handleFormChange} />
+              </div>
+              <div className="form-group">
+                <label className="label">Price (R) *</label>
+                <input className="input" name="price" type="number" step="0.01" value={form.price} onChange={handleFormChange} required />
+              </div>
+              <div className="form-group">
+                <label className="label">Stock Quantity</label>
+                <input className="input" name="stock_quantity" type="number" value={form.stock_quantity} onChange={handleFormChange} />
+              </div>
+              <div className="form-group">
+                <label className="label">Category *</label>
+                <select className="select" name="category" value={form.category} onChange={handleFormChange} required>
+                  <option value="">Select category</option>
+                  <option value="1">Services</option>
+                  <option value="2">Supplies</option>
+                  <option value="3">Packages</option>
+                </select>
+              </div>
+              <div className="form-group form-group-full">
+                <label className="label">Image URL</label>
+                <input className="input" name="image_url" value={form.image_url} onChange={handleFormChange} />
+              </div>
+              <div className="form-group form-group-full">
+                <label className="label">Description *</label>
+                <textarea className="textarea" name="description" value={form.description} onChange={handleFormChange} required />
+              </div>
+            </div>
+
+            {formError && <p className="form-error" role="alert">{formError}</p>}
+
+            <div className="flex justify-end gap-2">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
+              <button className="btn btn-primary" type="submit" disabled={formLoading}>
+                {formLoading ? <><span className="spinner" /> Creating…</> : "Create Product"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="table-wrap">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th aria-label="Actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr><td colSpan={5} className="table-loading">Loading products…</td></tr>
+            )}
+            {!loading && error && (
+              <tr><td colSpan={5} className="table-empty text-danger">Error: {error}</td></tr>
+            )}
+            {!loading && !error && productList.length === 0 && (
+              <tr><td colSpan={5} className="table-empty">No products found.</td></tr>
+            )}
+            {!loading && !error && productList.map(product => (
+              <tr key={product.id}>
+                <td data-label="Name" className="cell-strong">{product.name}</td>
+                <td data-label="Category" className="cell-muted">
+                  {CATEGORY_NAMES[product.category] || product.category}
+                </td>
+                <td data-label="Price" className="cell-accent">R {product.price}</td>
+                <td data-label="Stock" className="cell-muted">{product.stock_quantity ?? "--"}</td>
+                <td data-label="Actions">
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDelete(product.id, product.name)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </DashboardLayout>
+  )
 }

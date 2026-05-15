@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { flags as flagsApi } from "../services/api"
-import Sidebar from "../components/Sidebar"
+import DashboardLayout from "../components/DashboardLayout"
 
 export default function Services() {
   const [flagList, setFlagList] = useState([])
@@ -14,14 +14,12 @@ export default function Services() {
 
   async function handleToggle(serviceId, currentValue) {
     const newValue = !currentValue
-    // optimistic update — flip it in UI immediately
     setFlagList(prev =>
       prev.map(f => f._id === serviceId ? { ...f, enabled: newValue } : f)
     )
     try {
       await flagsApi.toggle(serviceId, newValue)
     } catch (err) {
-      // roll back if the API call failed
       setFlagList(prev =>
         prev.map(f => f._id === serviceId ? { ...f, enabled: currentValue } : f)
       )
@@ -30,48 +28,45 @@ export default function Services() {
   }
 
   return (
-    <div style={styles.page}>
-      <Sidebar activePage="/services" />
-      <div style={styles.main}>
-        <h1 style={styles.heading}>Services</h1>
-        <p style={styles.sub}>Toggle services on or off across the platform.</p>
-
-        {loading && <p style={{ color: "#666" }}>Loading...</p>}
-
-        <div style={styles.list}>
-          {flagList.map(flag => (
-            <div key={flag._id} style={styles.row}>
-              <div>
-                <p style={styles.label}>{flag.label || flag._id}</p>
-                <p style={styles.meta}>
-                  Last changed by {flag.updated_by || "—"}
-                </p>
-              </div>
-              <button
-                style={{
-                  ...styles.toggle,
-                  backgroundColor: flag.enabled ? "#2ecc71" : "#333",
-                }}
-                onClick={() => handleToggle(flag._id, flag.enabled)}
-              >
-                {flag.enabled ? "Enabled" : "Disabled"}
-              </button>
-            </div>
-          ))}
+    <DashboardLayout activePage="/services" title="Services">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Services</h1>
+          <p className="page-subtitle">Toggle services on or off across the platform.</p>
         </div>
       </div>
-    </div>
-  )
-}
 
-const styles = {
-  page: { display: "flex", minHeight: "100vh", backgroundColor: "#0f0f0f", color: "#fff" },
-  main: { flex: 1, padding: "2.5rem" },
-  heading: { margin: 0, fontSize: "1.8rem" },
-  sub: { color: "#666", marginTop: "0.25rem", marginBottom: "2rem" },
-  list: { display: "flex", flexDirection: "column", gap: "1rem" },
-  row: { display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#1a1a1a", padding: "1.25rem 1.5rem", borderRadius: "12px", border: "1px solid #2a2a2a" },
-  label: { margin: 0, fontWeight: "500", color: "#fff" },
-  meta: { margin: "0.25rem 0 0", fontSize: "0.8rem", color: "#555" },
-  toggle: { padding: "0.5rem 1.25rem", border: "none", borderRadius: "8px", color: "#000", fontWeight: "bold", cursor: "pointer", fontSize: "0.9rem", transition: "background-color 0.2s" },
+      {loading && (
+        <div className="card text-soft">Loading services…</div>
+      )}
+
+      {!loading && flagList.length === 0 && (
+        <div className="card text-soft">No services configured.</div>
+      )}
+
+      <div className="grid" style={{ gap: "var(--sp-3)" }}>
+        {flagList.map(flag => (
+          <div key={flag._id} className="card flex items-center justify-between">
+            <div>
+              <p className="font-semibold">{flag.label || flag._id}</p>
+              <p className="text-xs text-soft mt-2">
+                Last changed by {flag.updated_by || "—"}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className={`badge ${flag.enabled ? "badge-success" : "badge-neutral"}`}>
+                {flag.enabled ? "Enabled" : "Disabled"}
+              </span>
+              <button
+                className={`toggle ${flag.enabled ? "is-on" : ""}`}
+                onClick={() => handleToggle(flag._id, flag.enabled)}
+                aria-label={`Toggle ${flag.label || flag._id}`}
+                aria-pressed={flag.enabled}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </DashboardLayout>
+  )
 }

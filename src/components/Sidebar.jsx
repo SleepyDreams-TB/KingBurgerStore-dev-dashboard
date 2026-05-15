@@ -1,57 +1,75 @@
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
-export default function Sidebar({ activePage }) {
-  const navigate = useNavigate()
-  const { user, logout } = useAuth()
+const NAV_ITEMS = [
+  { label: "Overview",     path: "/dashboard",   icon: "M3 12l9-9 9 9M5 10v10h14V10" },
+  { label: "Products",     path: "/products",    icon: "M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4M3 17l9 4 9-4" },
+  { label: "Orders",       path: "/orders",      icon: "M4 6h16M4 12h16M4 18h10" },
+  { label: "Services",     path: "/services",    icon: "M12 6v6l4 2M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z" },
+  { label: "Webhook Logs", path: "/webhooklogs", icon: "M4 4h16v16H4zM4 9h16M9 4v16" },
+]
 
-  async function handleLogout() {
-    await logout()
-    navigate("/login")
-  }
-
-  const navItems = [
-    { label: "Overview", path: "/dashboard" },
-    { label: "Products", path: "/products" },
-    { label: "Orders", path: "/orders" },
-    { label: "Services", path: "/services" },
-    { label: "Webhook Logs", path: "/webhooklogs" },
-  ]
-
+function NavIcon({ d }) {
   return (
-    <div style={styles.sidebar}>
-      <div>
-        <h2 style={styles.logo}>KingBurger</h2>
-        <p style={styles.role}>Dev Dashboard</p>
-        <nav style={styles.nav}>
-          {navItems.map(item => (
-            <button
-              key={item.path}
-              style={{
-                ...styles.navItem,
-                color: activePage === item.path ? "#f5a623" : "#aaa",
-              }}
-              onClick={() => navigate(item.path)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-      <div>
-        <p style={styles.userName}>👤 {user.firstName}</p>
-        <button style={styles.logout} onClick={handleLogout}>Logout</button>
-      </div>
-    </div>
+    <svg className="nav-item-icon" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d={d} />
+    </svg>
   )
 }
 
-const styles = {
-  sidebar: { width: "220px", backgroundColor: "#1a1a1a", padding: "2rem 1.5rem", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #2a2a2a" },
-  logo: { color: "#f5a623", margin: 0, fontSize: "1.4rem" },
-  role: { color: "#555", fontSize: "0.8rem", marginTop: "0.25rem", marginBottom: "2rem" },
-  nav: { display: "flex", flexDirection: "column", gap: "0.5rem" },
-  navItem: { backgroundColor: "transparent", border: "none", textAlign: "left", padding: "0.6rem 0.75rem", borderRadius: "8px", cursor: "pointer", fontSize: "0.95rem" },
-  userName: { color: "#aaa", fontSize: "0.9rem", marginBottom: "0.5rem" },
-  logout: { width: "100%", padding: "0.6rem", borderRadius: "8px", border: "1px solid #333", backgroundColor: "transparent", color: "#e74c3c", cursor: "pointer", fontSize: "0.9rem" },
+export default function Sidebar({ activePage, isOpen, onClose }) {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  function go(path) {
+    navigate(path)
+    onClose?.()
+  }
+
+  const initials = (user?.firstName || "U").slice(0, 1).toUpperCase()
+
+  return (
+    <>
+      <aside className={`sidebar ${isOpen ? "is-open" : ""}`} aria-label="Primary">
+        <div className="sidebar-brand">
+          <div className="sidebar-logo" aria-hidden="true">K</div>
+          <div className="sidebar-brand-text">
+            <div className="sidebar-brand-name">KingBurger</div>
+            <div className="sidebar-brand-sub">Dev Dashboard</div>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          <div className="sidebar-section-label">Main</div>
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.path}
+              className={`nav-item ${activePage === item.path ? "is-active" : ""}`}
+              onClick={() => go(item.path)}
+              aria-current={activePage === item.path ? "page" : undefined}
+            >
+              <NavIcon d={item.icon} />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="user-avatar" aria-hidden="true">{initials}</div>
+            <div>
+              <div className="user-name">{user?.firstName || "User"}</div>
+              <div className="user-role">{user?.role || "developer"}</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <div
+        className={`sidebar-backdrop ${isOpen ? "is-open" : ""}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+    </>
+  )
 }
